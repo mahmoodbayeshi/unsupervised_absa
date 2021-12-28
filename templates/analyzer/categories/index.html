@@ -1,0 +1,73 @@
+{% extends 'analyzer/index.html' %}
+{% block page_name %}
+    Clusters Management
+{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h6>Add New Cluster</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'category_add' %}">
+                {% csrf_token %}
+            <div class="input-group input-group-sm">
+                  <input required name="category" type="text" class="form-control">
+                  <span class="input-group-append">
+                    <button type="submit" class="btn btn-info btn-flat">Add Cluster</button>
+                  </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h6>Clusters List</h6>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body p-0">
+<table id="table" class="table table-hover table-striped p-0">
+        <thead>
+            <tr>
+                <th>
+                    #
+                </th>
+                <th>
+                    cluster
+                </th>
+                <th>
+                    remove
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+        </tr>
+        {% for cluster in clusters %}
+            <tr>
+                <td>{{ cluster.id }}</td>
+                <td>{{ cluster.name}}</td>
+                <td><a class="btn btn-danger btn-flat btn-xs" href="{% url 'category_remove' id=cluster.id %}"><span class="fa fas fa-trash-o"></span>Remove</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $('#table').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+        });
+    </script>
+{% endblock %}

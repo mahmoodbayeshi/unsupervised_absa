@@ -1,0 +1,108 @@
+{% extends 'analyzer/index.html' %}
+{% block page_name %}
+    Analyzer
+{% endblock %}
+
+{% block content %}
+            <form method="post" action="{% url 'analyze' %}">
+                {% csrf_token %}
+    <div class="card card-info">
+        <div class="card-header">
+            New Analyze
+        </div>
+        <div class="card-body">
+            <textarea name="text" class="form-control" placeholder="enter comment to analyze" rows="5"></textarea>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-success btn-flat btn-block text-white">Start Analyze</button>
+        </div>
+    </div>
+                </form>
+    <div class="card">
+        <div class="card-header">
+            Previous Analysis
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body p-0">
+<table id="table" class="table table-hover p-0">
+        <thead>
+            <tr>
+                <th>
+                    #
+                </th>
+                <th>
+                    comment
+                </th>
+                <th>
+                    aspect phrases
+                </th>
+                <th>
+                    aspect clusters
+                </th>
+                <th>
+                    overall sentiment
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for comment in comments %}
+            <tr>
+                <td>{{ comment.id }}</td>
+                <td>{{ comment.text }}</td>
+                <td>
+                    {% for phrase in comment.phrases %}
+                        <span data-sentiment="{{ phrase.sentiment }}" class="badge badge-secondary" style="font-weight: normal;color:#333;font-size: 16px;padding: 7px;margin:3px">{{ phrase.index }}: {{ phrase.text|safe }}</span>
+                    {% endfor %}
+                </td>
+                <td>{% for category in comment.categories %}
+                        <span data-sentiment="{{ category.sentiment }}" class="badge badge-secondary" style="font-weight: normal;color:#333;font-size: 16px;padding: 7px;margin:3px">{{ category.index }}: {{ category.text }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <span data-sentiment="{{ comment.sentiment }}" class="badge badge-secondary" style="font-weight: normal;color:#333;font-size: 16px;padding: 7px">{{ comment.sentiment }}</span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        var percentColors = [
+    { pct: -0.7, color: { r: 0xc0, g: 0x39, b: 0x2b } },
+    { pct: 0, color: { r: 0xff, g: 0xff, b: 0xff } },
+    { pct: 1.0, color: { r: 0x16, g: 0xa0, b: 0x85 } } ];
+
+var getColorForPercentage = function(pct) {
+    for (var i = 1; i < percentColors.length - 1; i++) {
+        if (pct < percentColors[i].pct) {
+            break;
+        }
+    }
+    var lower = percentColors[i - 1];
+    var upper = percentColors[i];
+    var range = upper.pct - lower.pct;
+    var rangePct = (pct - lower.pct) / range;
+    var pctLower = 1 - rangePct;
+    var pctUpper = rangePct;
+    var color = {
+        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
+    };
+    return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
+    // or output as hex if preferred
+};
+
+$('[data-sentiment]').each(function (k,v){
+    v=$(v)
+    v.css('background-color',getColorForPercentage(v.data('sentiment')))
+        })
+    </script>
+{% endblock %}
